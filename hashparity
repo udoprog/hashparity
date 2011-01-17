@@ -38,7 +38,7 @@ function check_file() {
     if [[ ! -f $fp ]]; then
         echo "New File: $f ($EXT: $fp)"
         mkdir -p $(dirname $fp)
-        sum $f > $fp
+        echo "$(sum $f) $f" > $fp
         return 0
     fi
     

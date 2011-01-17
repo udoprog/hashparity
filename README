@@ -1,0 +1,15 @@
+Installing
+---
+Copy hashparity to somewhere in your path:
+
+    cp hashparity /usr/local/bin/
+
+Create a .hash at the root of the directory you want to check
+
+    mkdir .hash
+
+Run the parity check:
+
+    hashparity .
+
+Exit status will be 1 if any files does not match, the initial run will probably just create a bunch of files.

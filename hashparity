@@ -1,0 +1,77 @@
+#!/bin/bash
+#
+# Create a hash parity tree of a directory
+# 
+
+root=$(readlink -f $1)
+hashd=$root/.hash
+SUM=md5sum
+EXT=md5
+LEETIME=$((3600 * 24 * 7))
+now=$(date +"%s")
+
+[ $# -lt 1 ] && {
+    echo "Usage: hashparity <dir>"
+    exit 1
+}
+
+function sum() {
+    $SUM $1 | awk '{print $1}'
+}
+
+function stat_z() {
+    stat --format="%Z" $1
+}
+
+function difftime() {
+    echo $(($now - $(stat_z $1)))
+}
+
+function hashname() {
+    echo -n "$f" | sum - | sed -r 's_^(..)(..)(.*)$_\1/\2/\3_'
+}
+
+function check_file() {
+    f=$1
+    fp=$hashd/$(hashname $f).$EXT
+    
+    if [[ ! -f $fp ]]; then
+        echo "New File: $f ($EXT: $fp)"
+        mkdir -p $(dirname $fp)
+        sum $f > $fp
+        return 0
+    fi
+    
+    if [[ $(difftime $fp) -lt $LEETIME ]]; then
+        echo "Time: $f"
+        return 0
+    fi
+
+    h=$(sum $f)
+    p=$(cat $fp | awk '{print $1}')
+    
+    if [[ "$p" != "$h" ]]; then
+        echo "No match: $f ($EXT: $fp)" 1>&2
+        return 1
+    fi
+
+    echo "OK: $f"
+    # update modify time
+    touch $fp
+    return 0
+}
+
+[ ! -d $hashd ] && {
+    echo "Directory does not exist: $hashd"
+    exit 1
+}
+
+st=0
+
+while read file; do
+    if ! check_file $file; then
+        st=1
+    fi
+done < <(find $root -type f -a ! -name ".*")
+
+exit $st

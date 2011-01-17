@@ -72,6 +72,6 @@ while read file; do
     if ! check_file $file; then
         st=1
     fi
-done < <(find $root -type f -a ! -name ".*")
+done < <(find $root -name ".hash" -prune -o -type f -print)
 
 exit $st

@@ -28,7 +28,7 @@ function difftime() {
 }
 
 function hashname() {
-    echo -n "$f" | sum - | sed -r 's_^(..)(..)(.*)$_\1/\2/\3_'
+    echo -n "$1" | sum - | sed -r 's_^(..)(..)(.*)$_\1/\2/\3_'
 }
 
 function check_file() {
